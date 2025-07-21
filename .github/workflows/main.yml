@@ -1,0 +1,13 @@
+      - name: Linter (HTML)
+        uses: microsoft/html-validate-action@v1
+        with:
+          directory: .
+          config: .htmlvalidate.json
+
+      - name: Notificación en Slack
+        if: success()
+        uses: slackapi/slack-github-action@v1
+        with:
+          slack-message: '✅ CI completado: ${{ github.repository }}@${{ github.sha }}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
