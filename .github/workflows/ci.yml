@@ -1,43 +1,56 @@
-name: CI Pipeline
+name: CI Pipeline - Práctica
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, master ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, master ]
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  validate:
+    name: Validaciones Básicas
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
-      - name: Checkout code
+      # Paso 1: Descargar el código
+      - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          fetch-depth: 1  # Solo descargar el último commit
 
-      - name: Verify repository structure
+      # Paso 2: Verificar estructura del proyecto
+      - name: Verify Files
         run: |
+          echo "📂 Estructura del proyecto:"
           ls -la
-          echo "✅ Estructura verificada"
+          
+          echo "\n🔍 Contenido de archivos importantes:"
+          [ -f README.md ] && head -5 README.md || echo "⚠️ No existe README.md"
+          [ -f index.html ] && head -5 index.html || echo "⚠️ No existe index.html"
 
-      - name: Run simulated tests
+      # Paso 3: Pruebas simuladas
+      - name: Run Tests
         run: |
-          echo "🧪 Ejecutando pruebas unitarias..."
-          echo "Total de archivos: $(find . -type f | wc -l)"
-          echo "📦 Contenido de index.html:"
-          cat index.html || echo "No existe index.html"
+          echo "🧪 Iniciando pruebas..."
+          echo "1. Verificando sintaxis básica"
+          [ -f index.html ] && grep -q '<html' index.html && echo "✅ HTML válido" || echo "⚠️ No se detectó HTML válido"
+          
+          echo "\n2. Conteo de archivos"
+          echo "Total: $(find . -type f | wc -l) archivos"
+          
+          echo "\n🎉 Pruebas completadas"
 
-      - name: Build artifact (simulado)
-        run: echo "🛠️ Building artifact: ci-practica-$(date +%s).zip" >> build.log
-
-      - name: Upload artifact
+      # Paso 4
+      - name: Create Artifact
+        run: |
+          timestamp=$(date +%Y%m%d-%H%M%S)
+          echo "Versión: $timestamp" > build-info.txt
+          echo "Commit: ${{ github.sha }}" >> build-info.txt
+          
+      - name: Upload Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: build-artifact
-          path: build.log
+          name: build-metadata
+          path: build-info.txt
+
