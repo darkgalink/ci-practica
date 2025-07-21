@@ -17,7 +17,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1  # Solo descargar el último commit
+          fetch-depth: 1  # Optimiza la descarga
 
       # Paso 2: Verificar estructura del proyecto
       - name: Verify Files
@@ -41,16 +41,17 @@ jobs:
           
           echo "\n🎉 Pruebas completadas"
 
-      # Paso 4
+      # Paso 4: Generar y subir artefacto (versión actualizada)
       - name: Create Artifact
         run: |
           timestamp=$(date +%Y%m%d-%H%M%S)
           echo "Versión: $timestamp" > build-info.txt
           echo "Commit: ${{ github.sha }}" >> build-info.txt
+          echo "Workflow: ${{ github.workflow }}" >> build-info.txt
           
       - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: build-metadata
+          name: build-metadata-${{ github.run_id }}
           path: build-info.txt
-
+          retention-days: 5
