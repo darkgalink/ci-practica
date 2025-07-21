@@ -1,0 +1,43 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Verify repository structure
+        run: |
+          ls -la
+          echo "✅ Estructura verificada"
+
+      - name: Run simulated tests
+        run: |
+          echo "🧪 Ejecutando pruebas unitarias..."
+          echo "Total de archivos: $(find . -type f | wc -l)"
+          echo "📦 Contenido de index.html:"
+          cat index.html || echo "No existe index.html"
+
+      - name: Build artifact (simulado)
+        run: echo "🛠️ Building artifact: ci-practica-$(date +%s).zip" >> build.log
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: build.log
